@@ -47,11 +47,14 @@ pre-registration; each username is just its own KV key.
 ## Setup
 
 1. **GitHub token** — create a classic Personal Access Token (`public_repo`
-   scope is enough). This lifts the API limit to 5,000 req/hr. Store it as a
-   Worker secret:
+   scope is enough). This lifts the API limit to 5,000 req/hr. Store it in the
+   account-level **Secrets Store** (so it can be reused across Workers), then
+   bind it in `wrangler.toml` (`store_id` + `secret_name = "GITHUB_TOKEN"`):
    ```sh
-   npx wrangler secret put GITHUB_TOKEN
+   npx wrangler secrets-store store create my-secrets --remote
+   npx wrangler secrets-store secret create <store-id> --name GITHUB_TOKEN --scopes workers --remote
    ```
+   The Worker reads it asynchronously via `await env.GITHUB_TOKEN.get()`.
 2. **KV namespace** — create it and add the binding to `wrangler.toml`:
    ```sh
    npx wrangler kv namespace create STATS

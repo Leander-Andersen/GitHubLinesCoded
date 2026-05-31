@@ -19,7 +19,8 @@ import {
 
 export interface Env {
   STATS: KVNamespace;
-  GITHUB_TOKEN: string;
+  // Account-level secret from Secrets Store; resolved asynchronously via .get().
+  GITHUB_TOKEN: SecretsStoreSecret;
   CACHE_TTL_HOURS?: string;
   MAX_REPOS?: string;
   INCLUDE_FORKS?: string;
@@ -51,7 +52,14 @@ export default {
       return json({ error: "Invalid GitHub username" }, 400);
     }
     if (!env.GITHUB_TOKEN) {
-      return json({ error: "Server not configured: missing GITHUB_TOKEN" }, 500);
+      return json({ error: "Server not configured: missing GITHUB_TOKEN binding" }, 500);
+    }
+
+    let token: string;
+    try {
+      token = await env.GITHUB_TOKEN.get();
+    } catch {
+      return json({ error: "Server not configured: could not read GITHUB_TOKEN" }, 500);
     }
 
     const ttlHours = numEnv(env.CACHE_TTL_HOURS, 24);
@@ -69,13 +77,8 @@ export default {
       }
 
       // Stale or first-ever lookup: refresh from GitHub.
-      const stats = await fetchGitHubStats(username, env.GITHUB_TOKEN, includeForks);
-      const lines = await fetchLineCount(
-        stats.login,
-        stats.repos,
-        env.GITHUB_TOKEN,
-        maxRepos,
-      );
+      const stats = await fetchGitHubStats(username, token, includeForks);
+      const lines = await fetchLineCount(stats.login, stats.repos, token, maxRepos);
 
       const snapshot: Snapshot = {
         ts: now,
