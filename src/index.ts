@@ -44,7 +44,8 @@ export default {
       return json({ error: "Method not allowed" }, 405);
     }
 
-    const username = new URL(request.url).searchParams.get("username")?.trim();
+    const url = new URL(request.url);
+    const username = url.searchParams.get("username")?.trim();
     if (!username) {
       return json({ error: "Missing required query parameter: username" }, 400);
     }
@@ -71,8 +72,10 @@ export default {
       const history = await readHistory(env.STATS, username);
       const cached = latest(history);
 
-      // Serve cached snapshot without touching GitHub when still fresh.
-      if (cached && isFresh(cached, ttlHours, now)) {
+      // Serve cached snapshot without touching GitHub when still fresh,
+      // unless ?refresh is present to force a re-fetch from GitHub.
+      const force = url.searchParams.has("refresh");
+      if (!force && cached && isFresh(cached, ttlHours, now)) {
         return json(buildResponse(username, cached, history, false));
       }
 
