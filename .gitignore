@@ -10,10 +10,14 @@ dist/
 *.log
 npm-debug.log*
 
-# Editor / OS
+# Editor / OS / tooling
 .DS_Store
 .idea/
 .vscode/
+.claude/
+*.swp
+*~
+Thumbs.db
 
 # Env / secrets
 .env
