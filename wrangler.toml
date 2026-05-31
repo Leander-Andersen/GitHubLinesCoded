@@ -1,4 +1,4 @@
-name = "github-lines-api"
+name = "github-lines-coded"
 main = "src/index.ts"
 compatibility_date = "2026-05-01"
 
@@ -14,17 +14,13 @@ MAX_REPOS = "15"
 INCLUDE_FORKS = "false"
 
 # KV namespace for per-user stat snapshots.
-# Create with:  npx wrangler kv namespace create STATS
-# then paste the returned id below.
 [[kv_namespaces]]
 binding = "STATS"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+id = "5721d7b8db37401db943bf838945baf4"
 
 # GITHUB_TOKEN comes from account-level Secrets Store (accessed via .get() in code).
-# Create the store + secret once, then bind it here:
-#   npx wrangler secrets-store store create my-secrets --remote
-#   npx wrangler secrets-store secret create <store-id> --name GITHUB_TOKEN --scopes workers --remote
+# Get your store id with:  npx wrangler secrets-store store list
 [[secrets_store_secrets]]
 binding = "GITHUB_TOKEN"
-store_id = "REPLACE_WITH_SECRETS_STORE_ID"
+store_id = "7d16eedbb01c493ebbc6cf86aa891f12"
 secret_name = "GITHUB_TOKEN"
