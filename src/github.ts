@@ -137,11 +137,13 @@ export async function fetchLineCount(
   repos: RepoRef[],
   token: string,
   maxRepos: number,
+  maxAttempts = 3,
+  delayMs = 1500,
 ): Promise<number> {
   let total = 0;
 
   for (const repo of repos.slice(0, maxRepos)) {
-    const stats = await fetchContributorStats(repo, token);
+    const stats = await fetchContributorStats(repo, token, maxAttempts, delayMs);
     if (!stats) continue;
     const mine = stats.find(
       (c) => c.author?.login.toLowerCase() === username.toLowerCase(),
@@ -156,9 +158,10 @@ export async function fetchLineCount(
 async function fetchContributorStats(
   repo: RepoRef,
   token: string,
+  maxAttempts: number,
+  delayMs: number,
 ): Promise<ContributorStats[] | null> {
   const url = `${REST_BASE}/repos/${repo.owner}/${repo.name}/stats/contributors`;
-  const maxAttempts = 3;
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     const res = await fetch(url, {
@@ -170,8 +173,8 @@ async function fetchContributorStats(
     });
 
     if (res.status === 202) {
-      // GitHub is computing the stats; wait briefly and retry.
-      await sleep(1500);
+      // GitHub is computing the stats; wait and retry (skip wait on last try).
+      if (attempt < maxAttempts - 1 && delayMs > 0) await sleep(delayMs);
       continue;
     }
     if (res.status === 204) return []; // empty repo
