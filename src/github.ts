@@ -143,7 +143,9 @@ export async function fetchLineCount(
   for (const repo of repos.slice(0, maxRepos)) {
     const stats = await fetchContributorStats(repo, token);
     if (!stats) continue;
-    const mine = stats.find((c) => c.author?.login.toLowerCase() === username.toLowerCase());
+    const mine = stats.find(
+      (c) => c.author?.login.toLowerCase() === username.toLowerCase(),
+    );
     if (!mine) continue;
     for (const w of mine.weeks) total += w.a + w.d;
   }
@@ -182,5 +184,7 @@ async function fetchContributorStats(
 }
 
 function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }
