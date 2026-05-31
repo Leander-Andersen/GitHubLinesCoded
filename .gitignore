@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Build / Wrangler
+dist/
+.wrangler/
+.dev.vars
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+
+# Env / secrets
+.env
+.env.*
